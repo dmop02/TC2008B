@@ -69,7 +69,7 @@ public class ApplyTransforms : MonoBehaviour
         if(interpolation.x != 0)
         {
             float angle = Mathf.Atan2(stopPos.x - startPos.x, stopPos.z - startPos.z)* Mathf.Rad2Deg;
-            Matrix4x4 rotation = HW_Transforms.RotatateMat(angle, AXIS.Y);
+            Matrix4x4 rotation = HW_Transforms.RotateMat(angle, AXIS.Y);
             composite = move * rotation * scale;
 
         }
@@ -79,7 +79,7 @@ public class ApplyTransforms : MonoBehaviour
         }
         for (int i = 0; i < newVertices.Length; i++)
         {
-            Vector4 temp = new Vector4(baseVertices[i].x,baseVertices[i].y, baseVertices[i].z, 1 )
+            Vector4 temp = new Vector4(baseVertices[i].x,baseVertices[i].y, baseVertices[i].z, 1 );
             newVertices[i] = composite * temp;
 
         }
@@ -88,7 +88,7 @@ public class ApplyTransforms : MonoBehaviour
         mesh.RecalculateBounds();
         for(int i = 0; i < wheelObjects.Count; i++)
         {
-            Matrix4x4 wheelscale = HW_Transforms.ScaleMat(wheelscale, wheelscale, wheelscale);
+            Matrix4x4 wheelscale = HW_Transforms.ScaleMat(wheelScale, wheelScale, wheelScale);
             Matrix4x4 wheelrotation = HW_Transforms.RotateMat(90 * Time.time, AXIS.X);
             Matrix4x4 wheelmove = HW_Transforms.TranslationMat(wheels[i].x, wheels[i].y,wheels[i].z);
             wheelcomposite = composite * wheelmove * wheelrotation * wheelscale;
