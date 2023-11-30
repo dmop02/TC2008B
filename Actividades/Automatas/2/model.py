@@ -2,7 +2,7 @@ import mesa
 from mesa import Model, DataCollector
 from mesa.space import SingleGrid
 from mesa.time import SimultaneousActivation 
-
+import random 
 from agent import TreeCell
 
 class ForestFire(Model):
@@ -14,7 +14,7 @@ class ForestFire(Model):
             density: What fraction of grid cells have a tree in them.
     """
 
-    def __init__(self, height=100, width=100, density=0.65):
+    def __init__(self, height=50, width=50, density=0.65):
         """
         Create a new forest fire model.
         
@@ -29,7 +29,7 @@ class ForestFire(Model):
         # This activation method requires that all the agents have a step() and an advance() method. 
         # The step() method computes the next state of the agent, and the advance() method sets the state to the new computed state.
         self.schedule = SimultaneousActivation(self)
-        self.grid = SingleGrid(height, width, torus=False)
+        self.grid = SingleGrid(height, width, torus=True)
 
         # A datacollector is a Mesa object for collecting data about the model.
         # We'll use it to count the number of trees in each condition each step.
@@ -46,10 +46,11 @@ class ForestFire(Model):
             if self.random.random() < density:
                 # Create a tree
                 new_tree = TreeCell((x, y), self)
+                new_tree.condition = random.choice(["Live", "Unborn"])
                 
-                # Set all trees in the first column on fire.
-                if y == 49 and self.random.random() < density:
-                    new_tree.condition = "Live"
+            else:
+                new_tree = TreeCell((x, y), self)
+                new_tree.condition = "Unborn"
                 
                 self.grid.place_agent(new_tree, (x, y))
                 self.schedule.add(new_tree)
@@ -64,10 +65,6 @@ class ForestFire(Model):
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)
-
-        # Halt if no more fire
-        if self.count_type(self, "Live") == 0:
-            self.running = False
 
 
     # staticmethod is a Python decorator that makes a method callable without an instance.

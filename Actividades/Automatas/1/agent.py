@@ -22,7 +22,7 @@ class TreeCell(Agent):
         """
         super().__init__(pos, model)
         self.pos = pos
-        self.condition = "Unborn"
+        self.condition = "Live"
         self._next_condition = None
 
     def step(self):
@@ -30,36 +30,37 @@ class TreeCell(Agent):
         This method is the step method for the agent.
         """
  
-        position_status = {"upper_left": False,"upper_center": False,"upper_right": False}
+        upperR = None
+        upper = None
+        upperL = None
 
         neighbors = self.model.grid.iter_neighbors(self.pos,True)
         for neighbor in neighbors:
-            difx, dify =(self.pos[0] - neighbor.pos[0], self.pos[1] - neighbor.pos[1])
-            print(difx)
-            if difx == -1 and dify == -1 and neighbor.condition == "Unborn":
-                position_status["upper_left"] = True
-            elif difx == 0 and dify == -1 and neighbor.condition == "Unborn":
-                position_status["upper_center"]= True
-            elif difx == 1 and dify == -1 and neighbor.condition == "Unborn":
-                position_status["upper_right"] = True
-        if position_status["upper_left"] and position_status["upper_center"] and position_status["upper_right"]:
-            self._next_condition = "Live"
-        elif position_status["upper_left"] and position_status["upper_center"]:
-            self._next_condition = "Unborn"
-        elif position_status["upper_left"] and position_status["upper_right"]:
-            self._next_condition = "Live"
-        elif position_status["upper_center"] and position_status["upper_right"]:
-            self._next_condition = "Unborn"
-        elif position_status["upper_left"]:
-            self._next_condition = "Unborn"
-        elif position_status["upper_center"]:
-            self._next_condition = "Live"
-        elif position_status["upper_right"]:
-            self._next_condition = "Unborn"
-        elif not position_status["upper_left"] and not position_status["upper_center"] and not position_status["upper_right"] and self.pos[1] == 0:
-            self._next_condition = "Live"
+            if neighbor.pos[0] == self.pos[0] - 1 and neighbor.pos[1] == (self.pos[1] + 1)%50:
+                upperR = neighbor
+                
+            elif neighbor.pos[0] == self.pos[0] and neighbor.pos[1] == (self.pos[1] + 1)%50:
+                upper = neighbor
+            elif neighbor.pos[0] == self.pos[0] + 1 and neighbor.pos[1] == (self.pos[1] + 1)%50:
+                upperL = neighbor
         
+        if upperR is not None and upper is not None and upperL is not None:
         
+            state = '-'.join([neighbor.condition for neighbor in [upperR, upper, upperL]])
+
+
+            lookup = {
+                "Unborn-Unborn-Unborn": "Unborn",
+                "Unborn-Unborn-Live": "Live",
+                "Unborn-Live-Unborn": "Unborn",
+                "Unborn-Live-Live": "Live",
+                "Live-Unborn-Unborn": "Live",
+                "Live-Unborn-Live": "Unborn",
+                "Live-Live-Unborn": "Live",
+                "Live-Live-Live": "Unborn"
+            }
+
+            self._next_condition = lookup[state]
         
         
     def advance(self):

@@ -14,7 +14,7 @@ class ForestFire(Model):
             density: What fraction of grid cells have a tree in them.
     """
 
-    def __init__(self, height=100, width=100, density=0.65):
+    def __init__(self, height=50, width=50, density=0.65):
         """
         Create a new forest fire model.
         
@@ -43,16 +43,18 @@ class ForestFire(Model):
         # Place a tree in each cell with Prob = density
         # coord_iter is an iterator that returns positions as well as cell contents.
         for contents, (x, y) in self.grid.coord_iter():
-            if self.random.random() < density:
+            if self.random.random() < density and y == 49:
                 # Create a tree
                 new_tree = TreeCell((x, y), self)
+                new_tree.condition = "Live"
                 
                 # Set all trees in the first column on fire.
-                if y == 49 and self.random.random() < density:
-                    new_tree.condition = "Live"
+            else: 
+                new_tree = TreeCell((x, y), self)
+                new_tree.condition = "Unborn"
                 
-                self.grid.place_agent(new_tree, (x, y))
-                self.schedule.add(new_tree)
+            self.grid.place_agent(new_tree, (x, y))
+            self.schedule.add(new_tree)
 
         self.running = True
         self.datacollector.collect(self)
@@ -66,7 +68,7 @@ class ForestFire(Model):
         self.datacollector.collect(self)
 
         # Halt if no more fire
-        if self.count_type(self, "Live") == 0:
+        if self.count_type == 49:
             self.running = False
 
 

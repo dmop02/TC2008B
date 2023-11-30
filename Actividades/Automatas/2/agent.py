@@ -22,7 +22,7 @@ class TreeCell(Agent):
         """
         super().__init__(pos, model)
         self.pos = pos
-        self.condition = "Unborn"
+        self.condition = "Live"
         self._next_condition = None
 
     
@@ -30,51 +30,28 @@ class TreeCell(Agent):
         """
         This method is the step method for the agent.
         """
- 
-    
-
-        position_status = {"upper_left": False,"upper_center": False,"upper_right": False}
-
-        neighbors = self.model.grid.iter_neighbors(self.pos,True)
-        for neighbor in neighbors:
-            difx, dify =(self.pos[0] - neighbor.pos[0], self.pos[1] - neighbor.pos[1])
-            
-            if difx == -1 and dify == -1 and neighbor.condition == "Live":
-                position_status["upper_left"] = True
-            elif difx == -1 and dify == 49 and neighbor.condition == "Live":
-                position_status["upper_left"] = True
-            elif difx == 0 and dify == 49 and neighbor.condition == "Live":
-                position_status["upper_center"]= True
-            elif difx == 1 and dify == 49 and neighbor.condition == "Live":
-                position_status["upper_right"] = True
-            elif difx == -49 and dify == 1 and neighbor.condition == "Live":
-                position_status["upper_left"] = True
-            elif difx == 49 and dify == -1 and neighbor.condition == "Live":
-                position_status["upper_right"] = True
-            elif difx == -49 and dify == 49 and neighbor.condition == "Live":
-                position_status["upper_left"] = True
-            elif difx == 49 and dify == -49 and neighbor.condition == "Live":
-                position_status["upper_right"] = True
-        
-        if position_status["upper_left"] and position_status["upper_center"] and position_status["upper_right"]:
-            self._next_condition = "Live"
-        elif position_status["upper_left"] and position_status["upper_center"]:
-            self._next_condition = "Unborn"
-        elif position_status["upper_left"] and position_status["upper_right"]:
-            self._next_condition = "Live"
-        elif position_status["upper_center"] and position_status["upper_right"]:
-            self._next_condition = "Unborn"
-        elif position_status["upper_left"]:
-            self._next_condition = "Unborn"
-        elif position_status["upper_center"]:
-            self._next_condition = "Live"
-        elif position_status["upper_right"]:
-            self._next_condition = "Unborn"
-        elif not position_status["upper_left"] and not position_status["upper_center"] and not position_status["upper_right"] and self.pos[1] == 0:
-            self._next_condition = "Live"
-        
-        
-        
+        if self.condition == "Unborn" and self.pos[1] < 49 and 0 < self.pos[0] < 49:
+            n = [] #Neighbor List 
+            for neighbor in self.model.grid.iter_neighbors(self.pos, True):
+                if neighbor.pos[1] == self.pos[1] + 1: # Top Neighbors
+                    n.append(neighbor)
+            if len(n) >= 3:
+                if ((n[0].condition == "Unborn") and (n[1].condition == "Unborn") and (n[2].condition == "Live")or
+                    (n[0].condition == "Unborn") and (n[1].condition == "Live") and (n[2].condition == "Live")or
+                    (n[0].condition == "Live") and (n[1].condition == "Unborn") and (n[2].condition == "Unborn")or
+                    (n[0].condition == "Live") and (n[1].condition == "Live") and (n[2].condition == "Unborn")):
+                    self._next_condition = "Live"
+        if self.condition == "Live":
+            n = [] #Neighbor List
+            for neighbor in self.model.grid.iter_neighbors(self.pos, True):
+                if (self.pos[1] == 49 and neighbor.pos[1] == 0) or self.pos[1] + 1 == neighbor.pos[1]: # Se almacenan únicamente los vecinos de arriba
+                    n.append(neighbor)
+            if len(n) >= 3:
+                if ((n[0].condition == "Unborn") and (n[1].condition == "Unborn") and (n[2].condition == "Unborn")or
+                    (n[0].condition == "Unborn") and (n[1].condition == "Live") and (n[2].condition == "Unborn")or
+                    (n[0].condition == "Live") and (n[1].condition == "Unborn") and (n[2].condition == "Live")or
+                    (n[0].condition == "Live") and (n[1].condition == "Live") and (n[2].condition == "Live")):
+                    self._next_condition = "Unborn"
         
         
         

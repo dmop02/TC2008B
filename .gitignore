@@ -1,0 +1,6 @@
+
+__pycache__/
+*.vscode
+node_modules/
+*lock.yaml
+.env
